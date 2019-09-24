@@ -28,7 +28,12 @@ class TeamsController extends Controller
         return view('AdminPanel.teams.userindex', compact('users'));
     }
     public function save($id = 0){
-        $data = request()->only('name', 'slug');
+        //Validation
+
+        //Logic
+
+        //Save & return
+        $data = request()->only('name', 'slug', 'img');
         if(!request()->filled('slug')) {
             $data['slug'] = Str::slug(request('name'));
             request()->merge(['slug'=>$data['slug']]);
@@ -36,8 +41,21 @@ class TeamsController extends Controller
 
         $this->validate(request(), [
             'name' => 'required',
-            'slug' => (request('original_slug') != request('slug') ? 'unique:teams,slug' : '')
+            'slug' => (request('original_slug') != request('slug') ? 'unique:teams,slug' : ''),
+            'img' => 'required|image|mimes:jpg,png,jpeg,gif|max:2048'
         ]);
+
+        if(request()->hasFile('img'))
+        {
+
+            $img = request()->file('img');
+            $img = request()->img;
+            $img_name = $img->id . "-" . time() . "." . $img->extension();
+
+            if($request->file($img_name)->isValid()){
+                $img->move('images/users', $img_name);
+            }
+        }
 
         if($id > 0){
             $entry = Team::where('id', $id)->firstOrFail();
@@ -46,19 +64,6 @@ class TeamsController extends Controller
             $entry = Team::create($data);
         }
 
-        if(request()->hasFile('img'))
-        {
-            $this->validate(request(), [
-                'img' => 'image|mimes:jpg,png,jpeg,gif|max:2048'
-            ]);
-            $img = request()->file('img');
-            $img = request()->img;
-            $img_name = $entry->id . "-" . time() . "." . $img->extension();
-
-            if($request->file($img_name)->isValid()){
-                $img->move('images/users', $img_name);
-            }
-        }
         return redirect()
             ->route('AdminPanel.teams.edit', $entry->id)
             ->with('mesaj', ($id > 0 ? 'Yenilendi' : 'Yazıldı'))

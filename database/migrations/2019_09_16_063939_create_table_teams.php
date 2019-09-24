@@ -20,7 +20,7 @@ class CreateTableTeams extends Migration
             $table->integer('championships_id')->unsigned()->nullable();
             $table->string('name');
             $table->string('slug');
-            $table->string('img');
+            $table->string('img')->nullable();
             $table->timestamps();
             $table->softDeletes()->nullable();
         });

@@ -100,3 +100,4 @@ Route::group(['prefix'=>'user_registration'], function(){
 //    Route::post('/command_registration', 'CommandRegistrationController@command_registration');
 
 
+Route::resource('/example', 'ExampleController');
